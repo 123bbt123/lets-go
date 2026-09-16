@@ -22,3 +22,9 @@ pnpm-debug.log*
 
 # npm cache
 .npm-cache/
+
+# 部署工具产生的中间目录
+.edgeone/
+
+# vite 临时文件
+vite.config.ts.timestamp-*
