@@ -5,7 +5,7 @@ import { Category, ExerciseRecord } from '../types';
 import { groupCategoriesByParent, typeToChildIds } from '../store/useApp';
 import { startOfWeek, endOfWeek } from '../lib/week';
 import { formatShortMinutes } from '../lib/time';
-import { computeTotalsByType } from '../lib/level';
+import { computeTotalsByType, cappedRates, overallProgress } from '../lib/level';
 import { UserSettings } from '../types';
 
 interface Props {
@@ -38,9 +38,11 @@ export function TodayWeekProgress({ records, categories, settings }: Props) {
     recovery: settings?.recovery_goal_min ?? 30,
   };
 
-  const totalGoalSec = (goals.strength + goals.cardio + goals.recovery) * 60;
-  const totalDoneSec = weekTotals.strength + weekTotals.cardio + weekTotals.recovery;
-  const percent = totalGoalSec > 0 ? Math.round((totalDoneSec / totalGoalSec) * 100) : 0;
+  // 每个任务池封顶到 100% 后取平均：偏科不算数，三项都达标才是 100%
+  const progress = overallProgress(weekTotals, goals);
+  const percent = Math.round(progress * 100);
+  const each = cappedRates(weekTotals, goals);
+  const eachPct = (v: number) => Math.round(v * 100);
 
   return (
     <div className="grid grid-cols-2 gap-3">
@@ -56,6 +58,9 @@ export function TodayWeekProgress({ records, categories, settings }: Props) {
             className="h-full bg-brand-500 transition-all"
             style={{ width: `${Math.min(100, percent)}%` }}
           />
+        </div>
+        <div className="mt-1.5 text-[10px] text-slate-400 tabular-nums">
+          力量 {eachPct(each.strength)}% · 有氧 {eachPct(each.cardio)}% · 拉伸 {eachPct(each.recovery)}%
         </div>
       </div>
     </div>

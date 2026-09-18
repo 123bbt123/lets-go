@@ -305,7 +305,17 @@ function CurrentWeekStats({ check, settings }: { check: any; settings: any }) {
       </div>
       <div className="mt-4 text-xs text-slate-400">
         <div>上周完成率：力量 {pct(check.previousWeekRates.strength)}% · 有氧 {pct(check.previousWeekRates.cardio)}% · 拉伸 {pct(check.previousWeekRates.recovery)}%</div>
-        <div className="mt-1">当连续 2 周三大类完成率均 ≥ 100% 时可升级，均 ≤ 50% 时可降级。</div>
+
+        <div className="mt-3 pt-3 border-t border-slate-100">
+          <div className="text-slate-500">
+            本周总进度{' '}
+            <span className="font-semibold text-slate-700">{pct(check.currentWeekProgress ?? 0)}%</span>
+            {' · '}上周总进度{' '}
+            <span className="font-semibold text-slate-700">{pct(check.previousWeekProgress ?? 0)}%</span>
+          </div>
+          <div className="mt-1">总进度 = 三项各自封顶 100% 后取平均，单项超额不计入。</div>
+          <div className="mt-1">连续 2 周总进度 ≥ 80% 可升级，均 &lt; 50% 可降级。</div>
+        </div>
       </div>
     </div>
   );
