@@ -97,6 +97,8 @@ export function LevelSettings() {
           currentLevel={settings.level}
           onDismiss={dismissPrompt}
           onUp={async () => {
+            // 一次只升一级，不跨级；升级后本周不再提示，
+            // 所以哪怕连续多周达标，也是一周升一级。
             const newLevel = settings.level + 1;
             const goals = applyLevelMultiplier(DEFAULT_BASE_GOALS_MIN, newLevel);
             await saveSettings({
@@ -108,6 +110,7 @@ export function LevelSettings() {
             dismissPrompt();
           }}
           onDown={async () => {
+            // 一次只降一级，不跨级，且不低于 Lv.1
             const newLevel = Math.max(1, settings.level - 1);
             const goals = applyLevelMultiplier(DEFAULT_BASE_GOALS_MIN, newLevel);
             await saveSettings({
@@ -267,21 +270,25 @@ function LevelPrompt({
           </div>
         </div>
       )}
-      {canDown && (
+      {canDown && currentLevel > 1 && (
         <div className="card bg-amber-50 border-amber-200">
           <div className="flex items-start gap-3">
             <div className="w-10 h-10 rounded-full bg-amber-500 flex items-center justify-center flex-shrink-0">
               <svg viewBox="0 0 24 24" className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <path d="M12 5v14M5 12h14" />
+                <path d="M12 5v13" />
+                <path d="M6 13l6 6 6-6" />
               </svg>
             </div>
             <div className="flex-1">
-              <div className="font-semibold text-amber-900">降级提示</div>
-              <div className="text-xs text-amber-700 mt-1">你已经连续 2 周完成度很低，可以选择降级到 Lv {Math.max(1, currentLevel - 1)}，目标将减少 5%。</div>
+              <div className="font-semibold text-amber-900">要不要把目标调低一点</div>
+              <div className="text-xs text-amber-700 mt-1">
+                最近两周的节奏偏缓。生活总有忙的时候，把目标调到 Lv {currentLevel - 1}（减少 5%），
+                让运动量贴合现在的状态就好。这不是退步，之后状态回来了随时能再往上一级。
+              </div>
               <div className="mt-3 flex gap-2">
-                <button className="btn-secondary py-2 px-4 text-sm" onClick={onDismiss}>本周不再提醒</button>
+                <button className="btn-secondary py-2 px-4 text-sm" onClick={onDismiss}>保持当前等级</button>
                 <button className="bg-amber-600 hover:bg-amber-700 text-white font-medium py-2 px-4 text-sm rounded-full transition-colors" onClick={onDown}>
-                  降级到 Lv {Math.max(1, currentLevel - 1)}
+                  调到 Lv {currentLevel - 1}
                 </button>
               </div>
             </div>

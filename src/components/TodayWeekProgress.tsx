@@ -5,7 +5,7 @@ import { Category, ExerciseRecord } from '../types';
 import { groupCategoriesByParent, typeToChildIds } from '../store/useApp';
 import { startOfWeek, endOfWeek } from '../lib/week';
 import { formatShortMinutes } from '../lib/time';
-import { computeTotalsByType, cappedRates, overallProgress } from '../lib/level';
+import { computeTotalsByType, completionRates, overallProgress } from '../lib/level';
 import { UserSettings } from '../types';
 
 interface Props {
@@ -38,10 +38,12 @@ export function TodayWeekProgress({ records, categories, settings }: Props) {
     recovery: settings?.recovery_goal_min ?? 30,
   };
 
-  // 每个任务池封顶到 100% 后取平均：偏科不算数，三项都达标才是 100%
+  // 总进度：每个任务池封顶到 100% 后取平均（偏科不算数，三项都达标才是 100%）
   const progress = overallProgress(weekTotals, goals);
   const percent = Math.round(progress * 100);
-  const each = cappedRates(weekTotals, goals);
+
+  // 各任务池自己的完成率照常显示原始值，超额就显示超额（120% 就是 120%），不做封顶
+  const each = completionRates(weekTotals, goals);
   const eachPct = (v: number) => Math.round(v * 100);
 
   return (
